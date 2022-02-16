@@ -15,5 +15,7 @@ class ToScrapeCSSSpider(scrapy.Spider):
                 'tags': quote.css('div.tags a.tag::text').getall(),
             }
 
-        for href in response.css('ul.pager a::attr(href)'):
-            yield response.follow(href, callback=self.parse)
+        next_page = response.css('ul.pager a::attr(href)').get()
+        if next_page is not None:
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(next_page, callback=self.parse)
